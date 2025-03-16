@@ -8,17 +8,16 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject var wisdomStore: WisdomStore
+    @EnvironmentObject var aiAssistant: AIAssistant
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+        MainTabView()
     }
 }
 
 #Preview {
     ContentView()
+        .environmentObject(WisdomStore())
+        .environmentObject(AIAssistant(wisdomStore: WisdomStore()))
 }
