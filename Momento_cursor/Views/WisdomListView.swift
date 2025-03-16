@@ -6,6 +6,7 @@ struct WisdomListView: View {
     @State private var selectedSource: WisdomSource? = nil
     @State private var selectedCategory: WisdomCategory? = nil
     @State private var showingFilterSheet = false
+    @State private var showingAddWisdom = false
     
     var filteredWisdoms: [Wisdom] {
         var result = wisdomStore.wisdoms
@@ -31,99 +32,95 @@ struct WisdomListView: View {
     }
     
     var body: some View {
-        NavigationView {
-            VStack {
-                // 검색 바
-                SearchBar(text: $searchText)
+        VStack {
+            // 검색 바
+            SearchBar(text: $searchText)
+            
+            // 필터 버튼
+            HStack {
+                Text("지혜 저장소")
+                    .font(.headline)
+                    .foregroundColor(.secondary)
                 
-                // 필터 버튼
-                HStack {
-                    Spacer()
-                    
-                    Button(action: {
-                        showingFilterSheet = true
-                    }) {
-                        HStack {
-                            Text("필터")
-                            Image(systemName: "line.horizontal.3.decrease.circle")
+                Spacer()
+                
+                Button(action: {
+                    showingFilterSheet = true
+                }) {
+                    HStack {
+                        Text("필터")
+                        Image(systemName: "line.horizontal.3.decrease.circle")
+                    }
+                    .foregroundColor(.blue)
+                }
+            }
+            
+            // 필터 표시
+            if selectedSource != nil || selectedCategory != nil {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack {
+                        if let source = selectedSource {
+                            FilterChip(
+                                text: source.rawValue,
+                                onRemove: { selectedSource = nil }
+                            )
                         }
-                        .foregroundColor(.blue)
+                        
+                        if let category = selectedCategory {
+                            FilterChip(
+                                text: category.rawValue,
+                                onRemove: { selectedCategory = nil }
+                            )
+                        }
                     }
                     .padding(.horizontal)
                 }
-                
-                // 필터 표시
-                if selectedSource != nil || selectedCategory != nil {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack {
-                            if let source = selectedSource {
-                                FilterChip(
-                                    text: source.rawValue,
-                                    onRemove: { selectedSource = nil }
-                                )
-                            }
-                            
-                            if let category = selectedCategory {
-                                FilterChip(
-                                    text: category.rawValue,
-                                    onRemove: { selectedCategory = nil }
-                                )
-                            }
-                        }
-                        .padding(.horizontal)
-                    }
-                }
-                
-                if filteredWisdoms.isEmpty {
-                    VStack(spacing: 20) {
-                        Image(systemName: "book.closed")
-                            .font(.system(size: 50))
-                            .foregroundColor(.gray)
-                        
-                        Text(searchText.isEmpty && selectedSource == nil && selectedCategory == nil
-                             ? "아직 추가된 지혜가 없습니다."
-                             : "검색 결과가 없습니다.")
-                            .font(.headline)
-                            .foregroundColor(.gray)
-                        
-                        if !searchText.isEmpty || selectedSource != nil || selectedCategory != nil {
-                            Button(action: {
-                                searchText = ""
-                                selectedSource = nil
-                                selectedCategory = nil
-                            }) {
-                                Text("필터 초기화")
-                                    .foregroundColor(.blue)
-                            }
+            }
+            
+            if filteredWisdoms.isEmpty {
+                VStack(spacing: 20) {
+                    Image(systemName: "book.closed")
+                        .font(.system(size: 50))
+                        .foregroundColor(.gray)
+                    
+                    Text(searchText.isEmpty && selectedSource == nil && selectedCategory == nil
+                         ? "아직 추가된 지혜가 없습니다."
+                         : "검색 결과가 없습니다.")
+                        .font(.headline)
+                        .foregroundColor(.gray)
+                    
+                    if !searchText.isEmpty || selectedSource != nil || selectedCategory != nil {
+                        Button(action: {
+                            searchText = ""
+                            selectedSource = nil
+                            selectedCategory = nil
+                        }) {
+                            Text("필터 초기화")
+                                .foregroundColor(.blue)
                         }
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    List {
-                        ForEach(filteredWisdoms) { wisdom in
-                            NavigationLink(destination: WisdomDetailView(wisdom: wisdom)) {
-                                WisdomRow(wisdom: wisdom)
-                            }
-                        }
-                        .onDelete(perform: deleteWisdoms)
-                    }
-                    .listStyle(InsetGroupedListStyle())
                 }
-            }
-            .navigationTitle("지혜 저장소")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    NavigationLink(destination: AddWisdomView()) {
-                        Image(systemName: "plus")
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ForEach(filteredWisdoms) { wisdom in
+                    NavigationLink(destination: WisdomDetailView(wisdom: wisdom)) {
+                        WisdomRow(wisdom: wisdom)
                     }
+                    .buttonStyle(.plain)
+                    .compositingGroup()
+                    .shadow(radius: 1)
                 }
+                .onDelete(perform: deleteWisdoms)
             }
-            .sheet(isPresented: $showingFilterSheet) {
-                FilterView(
-                    selectedSource: $selectedSource,
-                    selectedCategory: $selectedCategory
-                )
-            }
+        }
+        .sheet(isPresented: $showingFilterSheet) {
+            FilterView(
+                selectedSource: $selectedSource,
+                selectedCategory: $selectedCategory
+            )
+        }
+        .sheet(isPresented: $showingAddWisdom) {
+            AddWisdomView()
         }
     }
     
@@ -140,6 +137,7 @@ struct WisdomRow: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(wisdom.content)
                 .font(.subheadline)
+                .multilineTextAlignment(.leading)
                 .lineLimit(2)
             
             HStack {
@@ -165,7 +163,8 @@ struct WisdomRow: View {
                 }
             }
         }
-        .padding(.vertical, 4)
+        .padding(8)
+        .background(.background, in: .rect(cornerRadius: 12))
     }
 }
 
@@ -193,7 +192,6 @@ struct SearchBar: View {
         .padding(8)
         .background(Color(.systemGray6))
         .cornerRadius(10)
-        .padding(.horizontal)
     }
 }
 

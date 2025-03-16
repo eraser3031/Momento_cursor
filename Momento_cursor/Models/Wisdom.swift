@@ -55,7 +55,7 @@ struct Wisdom: Identifiable, Codable {
 class WisdomStore: ObservableObject {
     @Published var wisdoms: [Wisdom] = []
     
-    private let saveKey = "savedWisdoms"
+    private let saveKey = "savedWisdoms2"
     
     init() {
         loadWisdoms()

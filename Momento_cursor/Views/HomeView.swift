@@ -18,11 +18,9 @@ struct HomeView: View {
                         dailyWisdomCard
                     }
                     
-                    // 최근 추가한 지혜
-                    recentWisdomsSection
-                    
-                    // 카테고리별 지혜
-                    categoriesSection
+                    // 지혜 저장소
+                    WisdomListView()
+                        .frame(maxHeight: .infinity)
                 }
                 .padding()
             }
@@ -102,60 +100,6 @@ struct HomeView: View {
             }
         }
         .padding(.vertical)
-    }
-    
-    // 최근 추가한 지혜 섹션
-    private var recentWisdomsSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text("최근 추가한 지혜")
-                    .font(.headline)
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-                
-                NavigationLink(destination: WisdomListView()) {
-                    Text("더보기")
-                        .font(.subheadline)
-                        .foregroundColor(.blue)
-                }
-            }
-            
-            if wisdomStore.wisdoms.isEmpty {
-                Text("아직 추가된 지혜가 없습니다.")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .background(Color(.systemBackground))
-                    .cornerRadius(12)
-                    .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
-            } else {
-                ForEach(Array(wisdomStore.wisdoms.prefix(3))) { wisdom in
-                    WisdomCard(wisdom: wisdom)
-                }
-            }
-        }
-    }
-    
-    // 카테고리별 지혜 섹션
-    private var categoriesSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("카테고리")
-                .font(.headline)
-                .foregroundColor(.secondary)
-            
-            LazyVGrid(columns: [
-                GridItem(.flexible()),
-                GridItem(.flexible())
-            ], spacing: 10) {
-                ForEach(WisdomCategory.allCases, id: \.self) { category in
-                    NavigationLink(destination: CategoryWisdomsView(category: category)) {
-                        CategoryCard(category: category, count: wisdomsCount(for: category))
-                    }
-                }
-            }
-        }
     }
     
     // 빠른 액션 버튼들
