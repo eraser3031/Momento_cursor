@@ -21,9 +21,16 @@ enum WisdomCategory: String, Codable, CaseIterable {
     case other = "기타"
 }
 
+enum WisdomContentType: String, Codable, CaseIterable {
+    case text = "텍스트"
+    case image = "이미지"
+    case url = "URL"
+}
+
 struct Wisdom: Identifiable, Codable {
     var id = UUID()
     var content: String
+    var contentType: WisdomContentType
     var source: WisdomSource
     var category: WisdomCategory
     var createdAt: Date
@@ -34,6 +41,7 @@ struct Wisdom: Identifiable, Codable {
     
     init(
         content: String,
+        contentType: WisdomContentType = .text,
         source: WisdomSource = .selfWritten,
         category: WisdomCategory = .other,
         context: String? = nil,
@@ -41,6 +49,7 @@ struct Wisdom: Identifiable, Codable {
         isFavorite: Bool = false
     ) {
         self.content = content
+        self.contentType = contentType
         self.source = source
         self.category = category
         self.context = context

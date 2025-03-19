@@ -47,7 +47,7 @@ class AIAssistant: ObservableObject {
     
     private var wisdomStore: WisdomStore
     
-    init(wisdomStore: WisdomStore) {
+    init(wisdomStore: WisdomStore) { 
         self.wisdomStore = wisdomStore
         
         // 초기 메시지 추가
